@@ -39,5 +39,6 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // Put your code here:
+    // step 1: figure out how to extract certain bits from instruction
+    And16()
 }
