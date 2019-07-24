@@ -1,0 +1,42 @@
+// Dmux32way chip
+CHIP DMux32Way {
+  IN in, sel[5];
+  OUT a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, a1, b1, c1, d1, e1, f1;
+
+  PARTS:
+  DMux16Way(in=in, sel=sel[0..3], a=a0, b=b0, c=c0, d=d0, e=e0, f=f0, g=g0, h=h0, i=i0, j=j0, k=k0, l=l0, m=m0, n=n0, o=o0, p=p0);
+  DMux16Way(in=in, sel=sel[0..3], a=q0, b=r0, c=s0, d=t0, e=u0, f=v0, g=w0, h=x0, i=y0, j=z0, k=a2, l=b2, m=c2, n=d2, o=e2, p=f2);
+
+  Or(a=a0, b=q0, out=a0q0);
+  Or(a=b0, b=r0, out=b0r0);
+  Or(a=c0, b=s0, out=c0s0);
+  Or(a=d0, b=t0, out=d0t0);
+  Or(a=e0, b=u0, out=e0u0);
+  Or(a=f0, b=v0, out=f0v0);
+  Or(a=g0, b=w0, out=g0w0);
+  Or(a=i0, b=y0, out=h0x0);
+  Or(a=j0, b=z0, out=j0z0);
+  Or(a=k0, b=a2, out=k0a2);
+  Or(a=l0, b=b2, out=l0b2);
+  Or(a=m0, b=c2, out=m0c2);
+  Or(a=n0, b=d2, out=n0d2);
+  Or(a=o0, b=e2, out=o0e2);
+  Or(a=p0, b=f2, out=p0f2);
+
+  DMux(in=a0q0, sel=sel[4], a=a, b=q);
+  DMux(in=b0r0, sel=sel[4], a=b, b=r);
+  DMux(in=c0s0, sel=sel[4], a=c, b=s);
+  DMux(in=d0t0, sel=sel[4], a=d, b=t);
+  DMux(in=e0u0, sel=sel[4], a=e, b=u);
+  DMux(in=f0v0, sel=sel[4], a=f, b=v);
+  DMux(in=g0w0, sel=sel[4], a=g, b=w);
+  DMux(in=h0x0, sel=sel[4], a=h, b=x);
+  DMux(in=j0z0, sel=sel[4], a=i, b=y);
+  DMux(in=k0a2, sel=sel[4], a=j, b=z);
+  DMux(in=l0b2, sel=sel[4], a=k, b=a1);
+  DMux(in=m0c2, sel=sel[4], a=l, b=b1);
+  DMux(in=n0d2, sel=sel[4], a=m, b=c1);
+  DMux(in=o0e2, sel=sel[4], a=n, b=d1);
+  DMux(in=a0q0, sel=sel[4], a=o, b=e1);
+  DMux(in=a0q0, sel=sel[4], a=p, b=f1);
+}

@@ -1,0 +1,30 @@
+// DMux16 Way 
+
+CHIP DMux16Way {
+  IN in, sel[4];
+  OUT a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p;
+
+  PARTS:
+  DMux8Way(in=in, sel=sel[0..2], a=a1, b=b1, c=c1, d=d1, e=e1, f=f1, g=g1, h=h1); 
+  DMux8Way(in=in, sel=sel[0..2], a=i1, b=j1, c=k1, d=l1, e=m1, f=n1, g=o1, h=p1);
+
+  Or(a=a1, b=i1, out=ai);
+  Or(a=b1, b=j1, out=bj);
+  Or(a=c1, b=k1, out=ck);
+  Or(a=d1, b=l1, out=dl);
+  Or(a=e1, b=m1, out=em);
+  Or(a=f1, b=n1, out=fn);
+  Or(a=g1, b=o1, out=go);
+  Or(a=h1, b=p1, out=hp);
+
+  // do the ors. the outs are in the ins for the 2way dmux
+  DMux (in=ai, sel=sel[3], a=a, b=i);
+  DMux (in=bj, sel=sel[3], a=b, b=j);
+  DMux (in=ck, sel=sel[3], a=c, b=k);
+  DMux (in=dl, sel=sel[3], a=d, b=l);
+  DMux (in=em, sel=sel[3], a=e, b=m);
+  DMux (in=fn, sel=sel[3], a=f, b=n);
+  DMux (in=go, sel=sel[3], a=g, b=o);
+  DMux (in=hp, sel=sel[3], a=h, b=p);
+
+}

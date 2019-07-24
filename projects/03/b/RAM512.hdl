@@ -1,0 +1,31 @@
+// This file is part of the materials accompanying the book 
+// "The Elements of Computing Systems" by Nisan and Schocken, 
+// MIT Press. Book site: www.idc.ac.il/tecs
+// File name: projects/03/b/RAM512.hdl
+
+/**
+ * Memory of 512 registers, each 16 bit-wide. Out holds the value
+ * stored at the memory location specified by address. If load==1, then 
+ * the in value is loaded into the memory location specified by address 
+ * (the loaded value will be emitted to out from the next time step onward).
+ */
+
+CHIP RAM512 {
+    IN in[16], load, address[9];
+    OUT out[16];
+
+    PARTS:
+    // use dmux 8 to set the right load bit based on the first 3 bits of the
+    // selector.
+    DMux8Way9Bit(in=load, sel=address, a=rama, b=ramb, c=ramc, d=ramd, e=rame, f=ramf, g=ramg, h=ramh);
+    RAM64(in=in, load=rama, address=address[3..8], out=ramaout); 
+    RAM64(in=in, load=ramb, address=address[3..8], out=rambout);
+    RAM64(in=in, load=ramc, address=address[3..8], out=ramcout);
+    RAM64(in=in, load=ramd, address=address[3..8], out=ramdout);
+    RAM64(in=in, load=rame, address=address[3..8], out=rameout);
+    RAM64(in=in, load=ramf, address=address[3..8], out=ramfout);
+    RAM64(in=in, load=ramg, address=address[3..8], out=ramgout);
+    RAM64(in=in, load=ramh, address=address[3..8], out=ramhout);
+    Mux8Way16And9BitSel(a=ramaout, b=rambout, c=ramcout, d=ramdout, e=rameout,
+    f=ramfout, g=ramgout, h=ramhout, sel=address, out=out);
+}

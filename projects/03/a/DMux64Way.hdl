@@ -1,0 +1,81 @@
+// 6 bit bus is needed to address 64 things. in is just 1 bit, so is out.
+CHIP DMux64 {
+  IN in, sel[6];
+  OUT a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, a1, b1, c1, d1, e1, f1, g1, h1, i1, j1, k1, l1, m1, n1, o1, p1, q1, r1, s1, t1, u1, v1, w1, x1, y1, z1, a2, b2, c2, d2, e2, f2, g2, h2, i2, j2, k2, l2;
+
+  PARTS:
+  DMux32Way(in=in, sel=sel[0...4], a=a0, b=b0, c=c0, d=d0, e=e0, f=f0, g=g0,
+  h=h0, i=i0, j=j0, k=k0, l=l0, m=m0, n=n0, o=o0, p=p0, q=q0, r=r0, s=s0, t=t0,
+  u=u0, v=v0, w=w0, x=x0, y=y0, z=z0, a1=a3, b1=b3, c1=c3, d1=d3, e1=e3, f1=f3);
+
+  DMux32Way(in=in, sel=sel[0..4], a=g3, b=h3, c=i3, d=j3, e=k3, f=l3, g=m3,
+  h=n3, i=o3, j=p3, k=q3, l=r3, m=s3, n=t3, o=u3, p=v3, q=w3, r=x3, s=y3, t=z3,
+  u=a4, v=b4, w=c4, x=d4, y=e4, z=f4, a1=g4, b1=h4, c1=i4, d1=j4, e1=k4, f1=l4);
+
+  Or(a=a0, b=g3, out=a0g3);
+  Or(a=b0, b=h3, out=b0h3);
+  Or(a=c0, b=i3, out=c0i3);
+  Or(a=d0, b=j3, out=d0j3);
+  Or(a=e0, b=k3, out=e0k3);
+  Or(a=f0, b=l3, out=f0l3);
+  Or(a=g0, b=m3, out=g0m3);
+  Or(a=h0, b=n3, out=h0n3);
+  Or(a=i0, b=o3, out=i0o3);
+  Or(a=j0, b=p3, out=j0p3);
+  Or(a=k0, b=q3, out=k0q3);
+  Or(a=l0, b=r3, out=l0r3);
+  Or(a=m0, b=s3, out=m0s3);
+  Or(a=n0, b=t3, out=n0t3);
+  Or(a=o0, b=u3, out=o0u3);
+  Or(a=p0, b=v3, out=p0v3);
+  Or(a=q0, b=w3, out=q0w3);
+  Or(a=r0, b=x3, out=r0x3);
+  Or(a=s0, b=y3, out=s0y3);
+  Or(a=t0, b=z3, out=t0z3);
+  Or(a=u0, b=a4, out=u0a4);
+  Or(a=v0, b=b4, out=v0b4);
+  Or(a=w0, b=c4, out=w0c4);
+  Or(a=x0, b=d4, out=x0d4);
+  Or(a=y0, b=e4, out=y0e4);
+  Or(a=z0, b=f4, out=z0f4);
+  Or(a=a3, b=g4, out=a3g4);
+  Or(a=b3, b=h4, out=b3h4);
+  Or(a=c3, b=i4, out=c3i4);
+  Or(a=d3, b=j4, out=d3j4);
+  Or(a=e3, b=k4, out=e3k4);
+  Or(a=f3, b=l4, out=f3l4);
+
+  DMux(in=a0g3, sel=sel[5], a=a, b=b);
+  DMux(in=b0h3, sel=sel[5], a=c, b=d);
+  DMux(in=c0i3, sel=sel[5], a=e, b=f);
+  DMux(in=d0j3, sel=sel[5], a=g, b=h);
+  DMux(in=e0k3, sel=sel[5], a=i, b=j);
+  DMux(in=f0l3, sel=sel[5], a=k, b=l);
+  DMux(in=g0m3, sel=sel[5], a=m, b=n);
+  DMux(in=h0n3, sel=sel[5], a=o, b=p);
+  DMux(in=i0o3, sel=sel[5], a=q, b=r);
+  DMux(in=j0p3, sel=sel[5], a=s, b=t);
+  DMux(in=k0q3, sel=sel[5], a=u, b=v);
+  DMux(in=l0r3, sel=sel[5], a=w, b=x);
+  DMux(in=m0s3, sel=sel[5], a=y, b=z);
+  DMux(in=n0t3, sel=sel[5], a=a1, b=b1);
+  DMux(in=o0u3, sel=sel[5], a=c1, b=d1);
+  DMux(in=p0v3, sel=sel[5], a=e1, b=f1);
+  DMux(in=q0w3, sel=sel[5], a=g1, b=h1);
+  DMux(in=r0x3, sel=sel[5], a=i1, b=j1);
+  DMux(in=s0y3, sel=sel[5], a=k1, b=l1);
+  DMux(in=t0z3, sel=sel[5], a=m1, b=n1);
+  DMux(in=u0a4, sel=sel[5], a=o1, b=p1);
+  DMux(in=v0b4, sel=sel[5], a=q1, b=r1);
+  DMux(in=w0c4, sel=sel[5], a=s1, b=t1);
+  DMux(in=x0d4, sel=sel[5], a=u1, b=v1);
+  DMux(in=y0e4, sel=sel[5], a=w1, b=x1);
+  DMux(in=z0f4, sel=sel[5], a=y1, b=z1);
+  DMux(in=a3g4, sel=sel[5], a=a2, b=b2);
+  DMux(in=b3h4, sel=sel[5], a=c2, b=d2);
+  DMux(in=c3i4, sel=sel[5], a=e2, b=f2);
+  DMux(in=d3j4, sel=sel[5], a=g2, b=h2);
+  DMux(in=e3k4, sel=sel[5], a=i2, b=j2);
+  DMux(in=f3l4, sel=sel[5], a=k2, b=l2);
+
+}

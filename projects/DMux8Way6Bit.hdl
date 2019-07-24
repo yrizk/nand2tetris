@@ -1,0 +1,4 @@
+CHIP DMux8Way6Bit {
+  IN in, sel[6];
+  OUT a, b, c, d, e, f, g, h;
+}

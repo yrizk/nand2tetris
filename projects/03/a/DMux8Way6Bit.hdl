@@ -1,0 +1,7 @@
+CHIP DMux8Way6Bit {
+  IN in, sel[6];
+  OUT a, b, c, d, e, f, g, h;
+
+  PARTS:
+  DMux8Way(in=in, sel=sel[0..2], a=a, b=b, c=c, d=d, e=e, f=f, g=g, h=h);
+}
