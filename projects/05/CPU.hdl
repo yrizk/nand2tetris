@@ -40,5 +40,26 @@ CHIP CPU {
 
     PARTS:
     // step 1: figure out how to extract certain bits from instruction
-    And16()
+    // this is done: using {not, and}
+
+    // Step 2: extract the opcode
+    Not15(in=instruction, out=notinstruction1);
+    And16(a=instruction, b=notinstruction, out=opcode); // step 2 complete.
+
+    // Step 3a: an A instruction, write it to the A register.
+    ARegister(in=instruction, load=1, out=AIns);
+
+    // Step 3b: a C instruction.
+
+    // Step 3b1: extract the a bit
+    Not15b(in=instruction, out=notinstruction2);
+    And16(a=instruction, b=notinstruction2, out=abit);
+
+    Not9(in=instruction, out=notinstruction3);
+    And16(a=instruction, b=notinstruction3, out=compbits);
+
+    
+    Mux(a=AIns, b=CIns, sel=opcode, out=)
+
+    
 }

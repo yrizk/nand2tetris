@@ -1,0 +1,21 @@
+CHIP NOT15b {
+    IN instruction
+    OUT out
+
+    PARTS:
+    Not(in=instruction[0], out=notinstruction2[0]);
+    Not(in=instruction[1], out=notinstruction2[1]);
+    Not(in=instruction[2], out=notinstruction2[2]);
+    Not(in=instruction[3], out=notinstruction2[3]);
+    Not(in=instruction[4], out=notinstruction2[4]);
+    Not(in=instruction[5], out=notinstruction2[5]);
+    Not(in=instruction[6], out=notinstruction2[6]);
+    Not(in=instruction[7], out=notinstruction2[7]);
+    Not(in=instruction[8], out=notinstruction2[8]);
+    Not(in=instruction[9], out=notinstruction2[9]);
+    Not(in=instruction[10], out=notinstruction2[10]);
+    Not(in=instruction[11], out=notinstruction2[11]);
+    Not(in=instruction[13], out=notinstruction2[13]);
+    Not(in=instruction[14], out=notinstruction2[14]);
+    Not(in=instruction[15], out=notinstruction2[15]);
+}
