@@ -1,6 +1,6 @@
 CHIP NOT15b {
-    IN instruction
-    OUT out
+    IN instruction;
+    OUT out;
 
     PARTS:
     Not(in=instruction[0], out=notinstruction2[0]);

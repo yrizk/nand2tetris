@@ -47,19 +47,29 @@ CHIP CPU {
     And16(a=instruction, b=notinstruction, out=opcode); // step 2 complete.
 
     // Step 3a: an A instruction, write it to the A register.
-    ARegister(in=instruction, load=1, out=AIns);
+    ARegister(in=instruction, load=true, out=AIns);
 
     // Step 3b: a C instruction.
 
     // Step 3b1: extract the a bit
     Not15b(in=instruction, out=notinstruction2);
     And16(a=instruction, b=notinstruction2, out=abit);
+    // now, use the abit
+    Memory(in=, load=true, address=inM, out=MValue); 
+    ARegister(in=instruction, load=true)
 
+    Mux16(a=AIns, b=MValue, sel=abit, out=)
+    
+
+
+    // step 3b2: extract the comp bits
     Not9(in=instruction, out=notinstruction3);
     And16(a=instruction, b=notinstruction3, out=compbits);
 
+    // step 3b3: extract dst bits
+    Not13(in=instruction, out=notintruction4);
+    And16(a=instruction, b=notinstruction4, out=dstbits);
     
-    Mux(a=AIns, b=CIns, sel=opcode, out=)
-
     
+    Mux(a=AIns, b=CIns, sel=opcode, out=) // probably don't need ths.
 }
