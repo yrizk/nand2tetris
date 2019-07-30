@@ -49,16 +49,14 @@ CHIP CPU {
     // Step 3a: an A instruction, write it to the A register.
     ARegister(in=instruction, load=true, out=AIns);
 
-    // Step 3b: a C instruction.
-
-    // Step 3b1: extract the a bit
+    // Step 3b: a C instruction (do nothing for this top level step)
+    // Step 3b1: extract the ac bit
     Not15b(in=instruction, out=notinstruction2);
-    And16(a=instruction, b=notinstruction2, out=abit);
-    // now, use the abit
+    And16(a=instruction, b=notinstruction2, out=acbit);
+    // now, use the acbit
     Memory(in=, load=true, address=inM, out=MValue); 
-    ARegister(in=instruction, load=true)
 
-    Mux16(a=AIns, b=MValue, sel=abit, out=)
+    Mux16(a=AIns, b=MValue, sel=acbit, out=)
     
 
 
