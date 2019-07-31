@@ -46,18 +46,17 @@ CHIP CPU {
     Not15(in=instruction, out=notinstruction1);
     And16(a=instruction, b=notinstruction, out=opcode); // step 2 complete.
 
-    // Step 3a: an A instruction, write it to the A register.
-    ARegister(in=instruction, load=true, out=AIns);
+    Mux16(a=aluout, b=instruction, sel=opcode, out=mux16out); // not sure about order.
 
-    // Step 3b: a C instruction (do nothing for this top level step)
-    // Step 3b1: extract the ac bit
+    // extract and use the ac bit
     Not15b(in=instruction, out=notinstruction2);
     And16(a=instruction, b=notinstruction2, out=acbit);
-    // now, use the acbit
-    Memory(in=, load=true, address=inM, out=MValue); 
+    ARegister(in=instruction, load=opcode, out=ARegOut);
 
-    Mux16(a=AIns, b=MValue, sel=acbit, out=)
-    
+
+    Mux16(a=ARegOut, b=inM, sel=acbit, out=y);
+
+    DRegister(in=aluout, load=opcode, out=x);
 
 
     // step 3b2: extract the comp bits
@@ -68,6 +67,15 @@ CHIP CPU {
     Not13(in=instruction, out=notintruction4);
     And16(a=instruction, b=notinstruction4, out=dstbits);
     
+    ALU(x=x, y=y, zx=compbits[0], nx=compbits[1], zy=compbits[2],
+    ny=compbits[3], f=compbits[4], no=compbits[5], out=aluout, zr=zrout, ng=ngout);
     
-    Mux(a=AIns, b=CIns, sel=opcode, out=) // probably don't need ths.
+    // TODO: how to figure out which of the c outputs of alu correspond to
+    // writeM?
+
+    Memory(in=, load=, address=, out=outM);
+
+    //todo: the output of PC is 16bits, but PC is supposed to be 15 bits.
+    PC(in=ARegOut, load=, inc=, reset=reset, out=); 
+    
 }
