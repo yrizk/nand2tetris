@@ -39,43 +39,34 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // step 1: figure out how to extract certain bits from instruction
-    // this is done: using {not, and}
+    // Put your code here:
+    Not(in=instruction[15], out=a);
+    Or(a=a, b=instruction[5], out=loadA);
+    Mux16(a=instruction, b=result, sel=instruction[15], out=i);
+    ARegister(in=i, load=loadA, out=A, out[0..14]=addressM);
 
-    // Step 2: extract the opcode
-    Not15(in=instruction, out=notinstruction1);
-    And16(a=instruction, b=notinstruction, out=opcode); // step 2 complete.
+    And(a=instruction[15], b=instruction[4], out=loadD);
+    DRegister(in=result, load=loadD, out=D);
 
-    Mux16(a=aluout, b=instruction, sel=opcode, out=mux16out); // not sure about order.
+    Mux16(a=A, b=inM, sel=instruction[12], out=AM);
+    ALU(x=D, y=AM, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=result, out=outM, zr=zr, ng=ng);
 
-    // extract and use the ac bit
-    Not15b(in=instruction, out=notinstruction2);
-    And16(a=instruction, b=notinstruction2, out=acbit);
-    ARegister(in=instruction, load=opcode, out=ARegOut);
+    And(a=instruction[15], b=instruction[3], out=writeM);
 
+    Not(in=zr, out=nzr);
+    Not(in=ng, out=nng);
+    And(a=nzr, b=nng, out=pos);
 
-    Mux16(a=ARegOut, b=inM, sel=acbit, out=y);
+    And(a=instruction[15], b=instruction[2], out=jlt);
+    And(a=instruction[15], b=instruction[1], out=jeq);
+    And(a=instruction[15], b=instruction[0], out=jgt);
 
-    DRegister(in=aluout, load=opcode, out=x);
+    And(a=jlt, b=ng, out=l1);
+    And(a=jeq, b=zr, out=l2);
+    And(a=jgt, b=pos, out=l3);
 
+    Or(a=l1, b=l2, out=tmp);
+    Or(a=tmp, b=l3, out=load);
 
-    // step 3b2: extract the comp bits
-    Not9(in=instruction, out=notinstruction3);
-    And16(a=instruction, b=notinstruction3, out=compbits);
-
-    // step 3b3: extract dst bits
-    Not13(in=instruction, out=notintruction4);
-    And16(a=instruction, b=notinstruction4, out=dstbits);
-    
-    ALU(x=x, y=y, zx=compbits[0], nx=compbits[1], zy=compbits[2],
-    ny=compbits[3], f=compbits[4], no=compbits[5], out=aluout, zr=zrout, ng=ngout);
-    
-    // TODO: how to figure out which of the c outputs of alu correspond to
-    // writeM?
-
-    Memory(in=, load=, address=, out=outM);
-
-    //todo: the output of PC is 16bits, but PC is supposed to be 15 bits.
-    PC(in=ARegOut, load=, inc=, reset=reset, out=); 
-    
+    PC(in=A, load=load, inc=true, reset=reset, out[0..14]=pc); 
 }
