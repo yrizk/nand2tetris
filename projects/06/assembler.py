@@ -36,9 +36,28 @@ class Parser:
 
     def dest(self):
         if self.commandType() == 'C_COMMAND':
+            if self.line().find("=") == -1:
+                return "000"
+            line = self.line().split("=")[0] # not sure if this is required
+            if line == "M":
+                return "001"
+            if line == "D":
+                return "010"
+            if line == "MD":
+                return "011"
+            if line == "A":
+                return "100"
+            if line == "AM":
+                return "101"
+            if line == "AD":
+                return "110"
+            if line == "AMD":
+                return "111"
 
     def comp(self):
         if self.commandType() == 'C_COMMAND':
+            parts = self.line().split("=")
+
 
     def jump(self):
         if self.commandType() == 'C_COMMAND':
