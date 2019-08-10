@@ -57,6 +57,70 @@ class Parser:
     def comp(self):
         if self.commandType() == 'C_COMMAND':
             parts = self.line().split("=")
+            if len(parts) == 1:
+                return "101010"
+            line = parts[1].split(";")
+            dest = parts[0]
+            if len(line) == 2:
+                line = line[0]
+            if line == "0":
+                return "101010"
+            if line == "1":
+                return "111111"
+            if line == "-1":
+                return "111010"
+            if line == "D":
+                return "001100"
+            if line == "!D":
+                return "001111"
+            if line == "-D":
+                return "001111"
+            if line == "D+1":
+                return "011111"
+            if line == "D-1":
+                return "001110"
+            if dest == "D":
+                if line == "M":
+                    return "110000"
+                if line == "!M":
+                    return "110001"
+                if line == "-M":
+                    return "110011"
+                if line == "M+1":
+                    return "110111"
+                if line == "M-1":
+                    return "110010"
+                if line == "D+M":
+                    return "000010"
+                if line == "D-M":
+                    return "010011"
+                if line == "M-D":
+                    return "000111"
+                if line == "D&M":
+                    return "000000"
+                if line == "D|M":
+                    return "010101"
+            else:
+                if line == "A"
+                    return "110000"
+                if line == "!A":
+                    return "110001"
+                if line == "-A":
+                    return "110011"
+                if line == "A+1":
+                    return "110111"
+                if line == "A-1":
+                    return "110010"
+                if line == "D+A":
+                    return "000010"
+                if line == "D-A":
+                    return "010011"
+                if line == "D-A":
+                    return "000111"
+                if line == "D&A":
+                    return "000000"
+                if line == "D|A":
+                    return "010101"
 
 
     def jump(self):
