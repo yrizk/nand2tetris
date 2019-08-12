@@ -15,6 +15,9 @@ class Parser:
             return None
         return self.contents[self.lineNo]
 
+    def reset():
+        self.lineNo = 0
+
     # not called by internal methods.
     # caller is responsible for safety.
     def advance(self):
@@ -162,9 +165,25 @@ class SymbolTable:
 
     def __init__(self):
         self.ds = {}
+        self.addPredefinedSymbols()
+        self.begAddress = 16
+
+    def addPredefinedSymbols(self):
+        for x in range(15):
+            self.addEntry("R"+x, x)
+        self.addEntry("SCREEN", 16384)
+        self.addEntry("KBD", 24576)
+        self.addEntry("SP", 0)
+        self.addEntry("LCL", 1)
+        self.addEntry("ARG", 2)
+        self.addEntry("THIS", 3)
+        self.addEntry("THAT", 4)
 
     # symbol is a str, address int
-    def addEntry(self, symbol, address):
+    def addEntry(self, symbol, address = -1):
+        if address == -1:
+            address = self.begAddress
+            self.begAddress += 1
         self.ds[symbol] = address
 
     def contains(self, symbol):
@@ -178,8 +197,15 @@ def main():
     filename = sys.argv[1]
     code = Code(filename)
     parser = Parser(filename)
-    output = open(filename[:-4] + '.hack', 'w+')
     st = SymbolTable()
+    output = open(filename[:-4]+ '.hack', 'w+')
+    while parser.hasMoreCommands():
+        if parser.commandType() == 'L_COMMAND':
+            st.addEntry(parser.line(), )
+        line = parser.line()
+        if parser.commandType() == 'A_COMMAND':
+
+
 
 if __name__ == "__main__":
     if len(sys.argv) == 2:
