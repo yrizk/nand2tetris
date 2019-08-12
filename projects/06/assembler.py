@@ -6,7 +6,6 @@ class Parser:
     def __init__(self, filename):
         with open(filename, 'r') as f:
             self.contents = [line in f.read().split('\n') if line.strip() != '']
-        self.asm = []
 
     def hasMoreCommands(self):
         return self.lineNo == len(self.contents) - 1
@@ -64,64 +63,63 @@ class Parser:
             if len(line) == 2:
                 line = line[0]
             if line == "0":
-                return "101010"
+                return "0101010"
             if line == "1":
-                return "111111"
+                return "0111111"
             if line == "-1":
-                return "111010"
+                return "0111010"
             if line == "D":
-                return "001100"
+                return "0001100"
             if line == "!D":
-                return "001111"
+                return "0001111"
             if line == "-D":
-                return "001111"
+                return "0001111"
             if line == "D+1":
-                return "011111"
+                return "0011111"
             if line == "D-1":
-                return "001110"
+                return "0001110"
             if dest == "D":
                 if line == "M":
-                    return "110000"
+                    return "1110000"
                 if line == "!M":
-                    return "110001"
+                    return "1110001"
                 if line == "-M":
-                    return "110011"
+                    return "1110011"
                 if line == "M+1":
-                    return "110111"
+                    return "1110111"
                 if line == "M-1":
-                    return "110010"
+                    return "1110010"
                 if line == "D+M":
-                    return "000010"
+                    return "1000010"
                 if line == "D-M":
-                    return "010011"
+                    return "1010011"
                 if line == "M-D":
-                    return "000111"
+                    return "1000111"
                 if line == "D&M":
-                    return "000000"
+                    return "1000000"
                 if line == "D|M":
-                    return "010101"
+                    return "1010101"
             else:
                 if line == "A"
-                    return "110000"
+                    return "0110000"
                 if line == "!A":
-                    return "110001"
+                    return "0110001"
                 if line == "-A":
-                    return "110011"
+                    return "0110011"
                 if line == "A+1":
-                    return "110111"
+                    return "0110111"
                 if line == "A-1":
-                    return "110010"
+                    return "0110010"
                 if line == "D+A":
-                    return "000010"
+                    return "0000010"
                 if line == "D-A":
-                    return "010011"
+                    return "0010011"
                 if line == "D-A":
-                    return "000111"
+                    return "0000111"
                 if line == "D&A":
-                    return "000000"
+                    return "0000000"
                 if line == "D|A":
-                    return "010101"
-
+                    return "0010101"
 
     def jump(self):
         if self.commandType() == 'C_COMMAND':
@@ -148,19 +146,20 @@ class Parser:
                 return "000" // no jmp
 
 class Code:
-    def __init__(self):
-        pass
+    def __init__(self, filename):
+        self.parser = Parser(filename)
 
     def comp(self):
-        pass
+        return self.parser.comp()
 
-    def jmp(self):
-        pass
+    def jump(self):
+        return self.parser.jump()
 
     def dest(self):
-        pass
+        return self.parser.dest()
 
 class SymbolTable:
+
     def __init__(self):
         self.ds = {}
 
@@ -172,11 +171,18 @@ class SymbolTable:
         return symbol in self.ds
 
     # again, symbol is a string
-    def GetAddress(self, symbol):
+    def getAddress(self, symbol):
         return self.ds[symbol] if self.contains(symbol)
+
+def main():
+    filename = sys.argv[1]
+    code = Code(filename)
+    parser = Parser(filename)
+    output = open(filename[:-4] + '.hack', 'w+')
+    st = SymbolTable()
 
 if __name__ == "__main__":
     if len(sys.argv) == 2:
-        Parser(sys.argv[1])
+        main()
     else:
         sys.exit("Usage: python <file.py> <assembly>")
