@@ -4,28 +4,32 @@ import re
 class Parser:
 
     def __init__(self, filename):
+        self.contents = []
+        self.lineNo = 0
         with open(filename, 'r') as f:
-            self.contents = [line in f.read().split('\n') if line.strip() != '']
+            for line in f.read().split('\n'):
+                if line.strip() != '':
+                    self.contents.append(line)
 
     def hasMoreCommands(self):
         return self.lineNo == len(self.contents) - 1
 
-    def line():
-        if !hasMoreCommands():
+    def line(self):
+        if not hasMoreCommands():
             return None
         return self.contents[self.lineNo]
 
-    def reset():
+    def reset(self):
         self.lineNo = 0
 
     # not called by internal methods.
     # caller is responsible for safety.
     def advance(self):
-        if !self.contents:
+        if not self.contents:
             return
-        if !hasMoreCommands():
+        if not hasMoreCommands():
             return
-        self.lineNo++
+        self.lineNo+=1
 
     def commandType(self):
         line = self.contents[self.lineNo]
@@ -103,7 +107,7 @@ class Parser:
                 if line == "D|M":
                     return "1010101"
             else:
-                if line == "A"
+                if line == "A":
                     return "0110000"
                 if line == "!A":
                     return "0110001"
@@ -143,34 +147,19 @@ class Parser:
                 return "101"
             elif line == "JLE":
                 return "110"
-            elif line == "JMP"
+            elif line == "JMP":
                 return "111"
             else:
-                return "000" // no jmp
-
-class Code:
-    def __init__(self, filename):
-        self.parser = Parser(filename)
-
-    def comp(self):
-        return self.parser.comp()
-
-    def jump(self):
-        return self.parser.jump()
-
-    def dest(self):
-        return self.parser.dest()
+                return "000"
 
 class SymbolTable:
-
     def __init__(self):
         self.ds = {}
         self.addPredefinedSymbols()
-        self.begAddress = 16
 
     def addPredefinedSymbols(self):
         for x in range(15):
-            self.addEntry("R"+x, x)
+            self.addEntry("R"+str(x), x)
         self.addEntry("SCREEN", 16384)
         self.addEntry("KBD", 24576)
         self.addEntry("SP", 0)
@@ -179,11 +168,9 @@ class SymbolTable:
         self.addEntry("THIS", 3)
         self.addEntry("THAT", 4)
 
+
     # symbol is a str, address int
-    def addEntry(self, symbol, address = -1):
-        if address == -1:
-            address = self.begAddress
-            self.begAddress += 1
+    def addEntry(self, symbol, address):
         self.ds[symbol] = address
 
     def contains(self, symbol):
@@ -191,21 +178,40 @@ class SymbolTable:
 
     # again, symbol is a string
     def getAddress(self, symbol):
-        return self.ds[symbol] if self.contains(symbol)
+        return self.ds[symbol] if self.contains(symbol) else None
+
+# converts a decimal number (int) to a binary number (str)
+def convert_to_binary(x):
+    return "{0:b}".format(x)
 
 def main():
     filename = sys.argv[1]
-    code = Code(filename)
     parser = Parser(filename)
     st = SymbolTable()
     output = open(filename[:-4]+ '.hack', 'w+')
+    # first pass, add the L_COMMANDS only.
     while parser.hasMoreCommands():
+        line = parser.line()
         if parser.commandType() == 'L_COMMAND':
-            st.addEntry(parser.line(), )
+            st.addEntry(line)
+        parser.advance()
+
+    # 2nd pass: add A instructions and start writing to output
+    parser.reset()
+    address = 16
+    while parser.hasMoreCommands():
         line = parser.line()
         if parser.commandType() == 'A_COMMAND':
-
-
+            if not parser.contains(line):
+                parser.addEntry(line, address)
+                address += 1
+            else:
+                output.write(convert_to_binary(parser.getAddress(line)))
+                output.write("\n")
+        if parser.commandType() == 'C_COMMAND':
+            output.write("111" + parser.dest() + parser.comp() + parser.jump())
+            output.write("\n")
+        parser.advance()
 
 if __name__ == "__main__":
     if len(sys.argv) == 2:
