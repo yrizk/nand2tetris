@@ -8,14 +8,14 @@ class Parser:
         self.lineNo = 0
         with open(filename, 'r') as f:
             for line in f.read().split('\n'):
-                if line.strip() != '':
+                if line.strip() != '' and not line.strip().startswith('//'):
                     self.contents.append(line)
 
     def hasMoreCommands(self):
-        return self.lineNo == len(self.contents) - 1
+        return self.lineNo < len(self.contents)
 
     def line(self):
-        if not hasMoreCommands():
+        if not self.hasMoreCommands():
             return None
         return self.contents[self.lineNo]
 
@@ -27,13 +27,13 @@ class Parser:
     def advance(self):
         if not self.contents:
             return
-        if not hasMoreCommands():
+        if not self.hasMoreCommands():
             return
         self.lineNo+=1
 
     def commandType(self):
         line = self.contents[self.lineNo]
-        if re.search(r'@[a-zA-Z]+', line):
+        if re.search(r'@[a-zA-Z0-9]+', line):
             return "A_COMMAND"
         if re.search(r'=', line):
             return "C_COMMAND"
@@ -67,7 +67,7 @@ class Parser:
                 return "101010"
             line = parts[1].split(";")
             dest = parts[0]
-            if len(line) == 2:
+            if len(line) <= 2:
                 line = line[0]
             if line == "0":
                 return "0101010"
@@ -85,7 +85,7 @@ class Parser:
                 return "0011111"
             if line == "D-1":
                 return "0001110"
-            if dest == "D":
+            if line.find("M") > -1:
                 if line == "M":
                     return "1110000"
                 if line == "!M":
@@ -186,6 +186,7 @@ def convert_to_binary(x):
 
 def main():
     filename = sys.argv[1]
+    print("converting {} to hack".format(filename))
     parser = Parser(filename)
     st = SymbolTable()
     output = open(filename[:-4]+ '.hack', 'w+')
@@ -201,13 +202,13 @@ def main():
     address = 16
     while parser.hasMoreCommands():
         line = parser.line()
+        print('assembling {}'.format(line))
         if parser.commandType() == 'A_COMMAND':
-            if not parser.contains(line):
-                parser.addEntry(line, address)
+            if not st.contains(line):
+                st.addEntry(line, address)
                 address += 1
-            else:
-                output.write(convert_to_binary(parser.getAddress(line)))
-                output.write("\n")
+            output.write(convert_to_binary(st.getAddress(line)))
+            output.write("\n")
         if parser.commandType() == 'C_COMMAND':
             output.write("111" + parser.dest() + parser.comp() + parser.jump())
             output.write("\n")
@@ -217,4 +218,4 @@ if __name__ == "__main__":
     if len(sys.argv) == 2:
         main()
     else:
-        sys.exit("Usage: python <file.py> <assembly>")
+        sys.exit("Usage: python <file.py> <*.asm>")
