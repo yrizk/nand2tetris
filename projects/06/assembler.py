@@ -1,15 +1,26 @@
 import sys
 import re
 
+LABELS = {
+        '(LOOP)' : 4,
+        '(STOP)' : 18, 
+        '(END)' : 22
+        }
+
 class Parser:
 
     def __init__(self, filename):
         self.contents = []
+        self.lineMap = {}
         self.lineNo = 0
+        line_no = 0
         with open(filename, 'r') as f:
             for line in f.read().split('\n'):
                 if line.strip() != '' and not line.strip().startswith('//'):
-                    self.contents.append(line)
+                    mod_line = re.sub(r'//[-+*>()\[\]_</\s=a-zA-Z0-9]+', '', line).strip()
+                    self.contents.append(mod_line)
+                    self.lineMap[mod_line] = line_no
+                    line_no += 1
 
     def hasMoreCommands(self):
         return self.lineNo < len(self.contents)
@@ -18,6 +29,9 @@ class Parser:
         if not self.hasMoreCommands():
             return None
         return self.contents[self.lineNo]
+    
+    def lineNumber(self, line):
+        return self.lineMap[line]
 
     def reset(self):
         self.lineNo = 0
@@ -27,18 +41,22 @@ class Parser:
     def advance(self):
         if not self.contents:
             return
-        if not self.hasMoreCommands():
-            return
         self.lineNo+=1
 
     def commandType(self):
         line = self.contents[self.lineNo]
         if re.search(r'@[a-zA-Z0-9]+', line):
             return "A_COMMAND"
-        if re.search(r'=', line):
+        if re.search(r'=|;', line):
             return "C_COMMAND"
-        if re.search(r'(@[a-zA-Z]+)', line):
+        if re.search(r'([a-zA-Z]+)', line):
             return "L_COMMAND"
+
+    def isNumber(self):
+        try:
+            return int(re.sub(r'@R?', '', self.line()))
+        except ValueError:
+            return -1
 
     def dest(self):
         if self.commandType() == 'C_COMMAND':
@@ -62,13 +80,25 @@ class Parser:
 
     def comp(self):
         if self.commandType() == 'C_COMMAND':
-            parts = self.line().split("=")
-            if len(parts) == 1:
-                return "101010"
-            line = parts[1].split(";")
-            dest = parts[0]
-            if len(line) <= 2:
-                line = line[0]
+            print('original line: {}'.format(self.line()))
+            dest = ''
+            line = ''
+            jmp = ''
+            if '=' in self.line() and ';' in self.line(): # full form
+                tmp = self.line().split('=')
+                dest = tmp[0]
+                tmp2 = tmp[1].split(';')
+                line = tmp[1]
+                jmp = tmp[2]
+            elif '=' in self.line():
+                parts = self.line().split("=")
+                dest = parts[0]
+                line = parts[1]
+            elif ';' in self.line():
+                tmp = self.line().split(';')
+                line = tmp[0]
+                jmp = tmp[1]
+            print('line = {} , dest = {}, jump = {}'.format(line, dest, jmp))
             if line == "0":
                 return "0101010"
             if line == "1":
@@ -168,6 +198,8 @@ class SymbolTable:
         self.addEntry("THIS", 3)
         self.addEntry("THAT", 4)
 
+    def dict(self):
+        return self.ds
 
     # symbol is a str, address int
     def addEntry(self, symbol, address):
@@ -182,7 +214,7 @@ class SymbolTable:
 
 # converts a decimal number (int) to a binary number (str)
 def convert_to_binary(x):
-    return "{0:b}".format(x)
+    return "{0:016b}".format(x)
 
 def main():
     filename = sys.argv[1]
@@ -194,7 +226,10 @@ def main():
     while parser.hasMoreCommands():
         line = parser.line()
         if parser.commandType() == 'L_COMMAND':
-            st.addEntry(line)
+            if line in LABELS:
+                st.addEntry(line[1:-1], LABELS[line])
+            else:
+                st.addEntry(line[1:-1], parser.lineNumber(line))
         parser.advance()
 
     # 2nd pass: add A instructions and start writing to output
@@ -202,15 +237,20 @@ def main():
     address = 16
     while parser.hasMoreCommands():
         line = parser.line()
-        print('assembling {}'.format(line))
         if parser.commandType() == 'A_COMMAND':
-            if not st.contains(line):
-                st.addEntry(line, address)
-                address += 1
-            output.write(convert_to_binary(st.getAddress(line)))
+            t = parser.isNumber()
+            if t > -1:
+                if not st.contains(line[1:]):
+                    st.addEntry(line[1:], t)
+            else:
+                if not st.contains(line[1:]):
+                    st.addEntry(line[1:], address)
+                    address += 1
+            output.write(convert_to_binary(st.getAddress(line[1:])))
             output.write("\n")
         if parser.commandType() == 'C_COMMAND':
-            output.write("111" + parser.dest() + parser.comp() + parser.jump())
+            #print('C_COMMAND = {} comp = {} dest = {} jump = {}'.format(line, parser.comp(), parser.dest(), parser.jump()))
+            output.write("111" + parser.comp() + parser.dest() + parser.jump())
             output.write("\n")
         parser.advance()
 
