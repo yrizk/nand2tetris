@@ -1,12 +1,6 @@
 import sys
 import re
 
-LABELS = {
-        '(LOOP)' : 4,
-        '(STOP)' : 18, 
-        '(END)' : 22
-        }
-
 class Parser:
 
     def __init__(self, filename):
@@ -14,11 +8,16 @@ class Parser:
         self.lineMap = {}
         self.lineNo = 0
         line_no = 0
+        self.L_COUNT = 0
+        self.secondLineMap = {}
         with open(filename, 'r') as f:
             for line in f.read().split('\n'):
                 if line.strip() != '' and not line.strip().startswith('//'):
                     mod_line = re.sub(r'//[-+*>()\[\]_</\s=a-zA-Z0-9]+', '', line).strip()
                     self.contents.append(mod_line)
+                    if ')' in mod_line and '(' in mod_line:
+                        self.secondLineMap[mod_line] = self.L_COUNT
+                        self.L_COUNT += 1
                     self.lineMap[mod_line] = line_no
                     line_no += 1
 
@@ -31,7 +30,7 @@ class Parser:
         return self.contents[self.lineNo]
     
     def lineNumber(self, line):
-        return self.lineMap[line]
+        return self.lineMap[line] - self.secondLineMap[line]
 
     def reset(self):
         self.lineNo = 0
@@ -80,7 +79,6 @@ class Parser:
 
     def comp(self):
         if self.commandType() == 'C_COMMAND':
-            print('original line: {}'.format(self.line()))
             dest = ''
             line = ''
             jmp = ''
@@ -98,7 +96,6 @@ class Parser:
                 tmp = self.line().split(';')
                 line = tmp[0]
                 jmp = tmp[1]
-            print('line = {} , dest = {}, jump = {}'.format(line, dest, jmp))
             if line == "0":
                 return "0101010"
             if line == "1":
@@ -226,10 +223,7 @@ def main():
     while parser.hasMoreCommands():
         line = parser.line()
         if parser.commandType() == 'L_COMMAND':
-            if line in LABELS:
-                st.addEntry(line[1:-1], LABELS[line])
-            else:
-                st.addEntry(line[1:-1], parser.lineNumber(line))
+            st.addEntry(line[1:-1], parser.lineNumber(line))
         parser.advance()
 
     # 2nd pass: add A instructions and start writing to output
@@ -249,7 +243,6 @@ def main():
             output.write(convert_to_binary(st.getAddress(line[1:])))
             output.write("\n")
         if parser.commandType() == 'C_COMMAND':
-            #print('C_COMMAND = {} comp = {} dest = {} jump = {}'.format(line, parser.comp(), parser.dest(), parser.jump()))
             output.write("111" + parser.comp() + parser.dest() + parser.jump())
             output.write("\n")
         parser.advance()
